@@ -5,6 +5,10 @@ output: html_notebook
 ---
 
 ## Guiding Question
+```{r}
+library(DataComputing)
+library(mosaic)
+```
 
 
 ## Become acquainted with the data sources
@@ -44,10 +48,48 @@ Census_Tract_2017
 ```
 
 ## Explore intuition related to research question
+1. Create some informative plots and summary statistics 
+```{r}
+graphdata <-
+  Census_Tract_2015%>%
+  filter(State == "Pennsylvania")
 
+ggplot(data=graphdata,aes(x=County,y=TotalPop ))+geom_bar(stat='identity',position='stack', width=.9) 
+```
+```{r}
+
+graphdata <-
+  Census_Tract_2015%>%
+  filter(State == "Alabama")
+
+ggplot(data=graphdata,aes(x=County,y=TotalPop ))+geom_bar(stat='identity',position='stack', width=.9) 
+
+```
+```{r}
+
+incomedata <-
+  Census_Tract_2015%>%
+  filter(State == "Pennsylvania")
+
+ggplot(data=incomedata,aes(x=County,y=Income ))+geom_bar(stat='identity',position='stack', width=.9) 
+
+```
+```{r}
+incomedata2 <-
+  Census_Tract_2015%>%
+  filter(State == "Pennsylvania")
+
+ggplot(data=incomedata2,aes(x=County,y=Income ))+geom_bar(stat='identity',position='stack', width=.9) 
+```
+
+  
+
+2. Describe preliminary observations and intuition about the research question
 
 ## Two or more data sources
 
 
+1.  acs2017_census_tract_data.csv
 
+2.  acs2015_census_tract_data.csv
 
