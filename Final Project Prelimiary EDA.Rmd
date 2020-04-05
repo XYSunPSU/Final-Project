@@ -4,12 +4,15 @@ author: "Xunyuan Sun & Jing Du"
 output: html_notebook
 ---
 
-## Guiding Question
+
 ```{r}
 library(DataComputing)
 library(mosaic)
 ```
 
+## Guiding Question
+
+Demographic changes in 15 and 17 years
 
 ## Become acquainted with the data sources
 
@@ -86,8 +89,9 @@ ggplot(data=incomedata2,aes(x=County,y=Income ))+geom_bar(stat='identity',positi
 
 2. Describe preliminary observations and intuition about the research question
 
-## Two or more data sources
 
+
+## Two or more data sources
 
 1.  acs2017_census_tract_data.csv
 
