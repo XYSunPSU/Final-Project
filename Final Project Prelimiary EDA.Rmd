@@ -62,8 +62,8 @@ ggplot(data=graphdata,aes(x=County,y=TotalPop ))+geom_bar(stat='identity',positi
 ```{r}
 
 graphdata <-
-  Census_Tract_2015%>%
-  filter(State == "Alabama")
+  Census_Tract_2017%>%
+  filter(State == "Pennsylvania")
 
 ggplot(data=graphdata,aes(x=County,y=TotalPop ))+geom_bar(stat='identity',position='stack', width=.9) 
 
@@ -79,10 +79,26 @@ ggplot(data=incomedata,aes(x=County,y=Income ))+geom_bar(stat='identity',positio
 ```
 ```{r}
 incomedata2 <-
-  Census_Tract_2015%>%
+  Census_Tract_2017%>%
   filter(State == "Pennsylvania")
 
 ggplot(data=incomedata2,aes(x=County,y=Income ))+geom_bar(stat='identity',position='stack', width=.9) 
+```
+```{r}
+
+UEdata <-
+  Census_Tract_2015%>%
+  filter(State == "Pennsylvania")
+
+ggplot(data=UEdata,aes(x=County,y=Unemployment ))+geom_bar(stat='identity',position='stack', width=.9) 
+
+```
+```{r}
+UEdata2 <-
+  Census_Tract_2017%>%
+  filter(State == "Pennsylvania")
+
+ggplot(data=UEdata2,aes(x=County,y=Unemployment ))+geom_bar(stat='identity',position='stack', width=.9) 
 ```
 
   
