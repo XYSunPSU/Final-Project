@@ -1,0 +1,24 @@
+---
+title: "Final Project"
+author: "Xunyuan Sun & Jing Du"
+date: "4.19.2020"
+output: html_notebook
+---
+
+# Set up
+
+### Clean up environment and load packages
+```{r}
+# clean up the RStudio environment 
+rm(list = ls())
+
+# load all packages here: `mosaic`, `tidyverse`, `DataComputing`, `tidyr` and all others used
+library(mosaic)
+library(DataComputing)
+library(tidyverse)
+library(tidyr)
+
+```
+
+
+
