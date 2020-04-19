@@ -5,9 +5,7 @@ date: "4.19.2020"
 output: html_notebook
 ---
 
-# Set up
-
-### Clean up environment and load packages
+## Clean up environment and load packages
 ```{r}
 # clean up the RStudio environment 
 rm(list = ls())
@@ -17,8 +15,46 @@ library(mosaic)
 library(DataComputing)
 library(tidyverse)
 library(tidyr)
-
 ```
 
 
+## Data Intake
+
+```{r}
+# Import and Inspect data
+Census_Tract_2015 <-
+  read.csv("https://raw.githubusercontent.com/XYSunPSU/Final-Project/master/acs2015_census_tract_data.csv", header = T)
+
+Census_Tract_2015 %>%
+  head(5)
+```
+
+```{r}
+Census_Tract_2017 <-
+  read.csv("https://raw.githubusercontent.com/XYSunPSU/Final-Project/master/acs2017_census_tract_data.csv", header = T)
+
+Census_Tract_2017 %>%
+  head(5)
+```
+
+## Formalize Data Frame
+
+```{r}
+# remove state and county from Census_Tract_2017
+CenTract2017 <-
+  Census_Tract_2017 %>%
+  select(-State, -County)
+```
+
+```{r}
+# add suffix to each column in each data frame
+colnames(Census_Tract_2015) <- paste(colnames(Census_Tract_2015), "2015", sep = "_")
+
+CenTract2015 <-
+  Census_Tract_2015
+
+CenTract2017 <-
+  CenTract2017 %>%
+  rename_all(paste0, "_2017")
+```
 
