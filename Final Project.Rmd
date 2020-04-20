@@ -50,11 +50,37 @@ CenTract2017 <-
 # add suffix to each column in each data frame
 colnames(Census_Tract_2015) <- paste(colnames(Census_Tract_2015), "2015", sep = "_")
 
-CenTract2015 <-
-  Census_Tract_2015
-
 CenTract2017 <-
   CenTract2017 %>%
   rename_all(paste0, "_2017")
 ```
+
+```{r}
+# rename columns
+CenTract2015 <-
+  Census_Tract_2015 %>%
+  rename(TractID_2015 = "CensusTract_2015", State = "State_2015", County = "County_2015")
+```
+
+
+## Find unemployement rate change in each county in Pennsylvania
+
+1. Filter data where state is pennsylvania
+```{r}
+PennStateCensusTract <-
+  CenTract2015 %>%
+  inner_join(CenTract2017, by = c("TractID_2015" = "TractId_2017")) %>%
+  filter(State == "Pennsylvania")
+```
+
+2. Calculate the exactly number of people who is unemployed
+```{r}
+UnemploymentRateChange <-
+  PennStateCensusTract %>%
+  select(County, TotalPop_2015, Unemployment_2015, TotalPop_2017, Unemployment_2017) %>%
+  mutate(Unemployed2015 = TotalPop_2015 * Unemployment_2015 * 0.01, 
+         Unemployed2017 = TotalPop_2017 * Unemployment_2017 * 0.01) %>%
+  mutate_at(vars(Unemployed2015, Unemployed2017), list(~ round(., 0)))
+```
+
 
