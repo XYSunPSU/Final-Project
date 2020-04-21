@@ -48,20 +48,21 @@ CenTract2017 <-
 
 ```{r}
 # add suffix to each column in each data frame
-colnames(Census_Tract_2015) <- paste(colnames(Census_Tract_2015), "2015", sep = "_")
 
 CenTract2017 <-
   CenTract2017 %>%
-  rename_all(paste0, "_2017")
+  rename_all(paste0, "_2017") %>%
+  mutate(Year = "2017")
 ```
 
 ```{r}
 # rename columns
 CenTract2015 <-
   Census_Tract_2015 %>%
-  rename(TractID_2015 = "CensusTract_2015", State = "State_2015", County = "County_2015")
+  rename_all(paste0, "_2015") %>%
+  rename(TractID_2015 = "CensusTract_2015", State = "State_2015", County = "County_2015") %>%
+  mutate(Year = "2015")
 ```
-
 
 ## Find unemployement rate change in each county in Pennsylvania
 
@@ -94,8 +95,17 @@ UnemploymentRateChange <-
             TotPop_2017 = sum(TotalPop_2017), TotUnemployed_2017 = sum(Unemployed2017)) %>%
   mutate(UnemployedRate_2015 = TotUnemployed_2015/TotPop_2015, 
          UnemployedRate_2017 = TotUnemployed_2017/TotPop_2017) %>%
-  mutate_at(vars(UnemployedRate_2015, UnemployedRate_2017), list(~ round(., 4)))
+  mutate_at(vars(UnemployedRate_2015, UnemployedRate_2017), list(~ round(., 4))) %>%
+  select(County, UnemployedRate_2015, UnemployedRate_2017)
   
+```
+
+4. Change data frame to narrwo form
+```{r}
+UnemploymentRateChange_gather <-
+  UnemploymentRateChange %>%
+  rename(`2015` = "UnemployedRate_2015", `2017` = "UnemployedRate_2017") %>%
+  gather(key = when, value = UnemployedRate, `2015`, `2017`)
 ```
 
 ## Find income change in each county in Pennsylvania
@@ -116,8 +126,29 @@ CountyTotalIncome <-
   TractTotalIncome %>%
   group_by(County) %>%
   summarise(TotIncome_2015 = sum(TotalIncome_2015),
-            TotIncome_2017 = sum(TotalIncome_2017))
+            TotIncome_2017 = sum(TotalIncome_2017),
+            TotalPop_2015 = sum(TotalPop_2015),
+            TotalPop_2017 = sum(TotalPop_2017))
 ```
 
+3. Find the Per Cap Income for each county
+```{r}
+PerCapIncome <-
+  CountyTotalIncome %>%
+  group_by(County) %>%
+  mutate(Per_Cap_Income_2015 = TotIncome_2015 / TotalPop_2015,
+         Per_Cap_Income_2017 = TotIncome_2017 / TotalPop_2017) %>%
+  select(County, Per_Cap_Income_2015, Per_Cap_Income_2017) 
+```
+
+4. Change the data frame to narrow form
+```{r}
+names(PerCapIncome)[2] <- "2015"
+names(PerCapIncome)[3] <- "2017"
+
+PerCapIncome_gather <-
+  PerCapIncome %>%
+  gather(key = when, value = Per_Cap_Income, `2015`, `2017`)
+```
 
 
