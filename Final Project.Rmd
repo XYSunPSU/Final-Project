@@ -27,6 +27,10 @@ Census_Tract_2015 <-
 
 Census_Tract_2015 %>%
   head(5)
+
+```
+```{r}
+Census_Tract_2015 <- acs2015_census_tract_data
 ```
 
 ```{r}
@@ -35,6 +39,9 @@ Census_Tract_2017 <-
 
 Census_Tract_2017 %>%
   head(5)
+```
+```{r}
+Census_Tract_2017 <- acs2017_census_tract_data
 ```
 
 ## Formalize Data Frame
@@ -147,6 +154,23 @@ names(PerCapIncome)[3] <- "2017"
 PerCapIncome_gather <-
   PerCapIncome %>%
   gather(key = Year, value = Per_Cap_Income, `2015`, `2017`)
+```
+
+5. Use join to combine per capita income and unemployed rate in the same table.
+
+```{r}
+Unemployed_vs_PerCapIncome <- 
+  UnemploymentRateChange_gather%>%
+  inner_join(PerCapIncome_gather)
+```
+6.plot
+
+```{r}
+ggplot(data = Unemployed_vs_PerCapIncome,aes(x = UnemployedRate, y = Per_Cap_Income)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10() +
+  facet_wrap(~Year,ncol = 4)
 ```
 
 
