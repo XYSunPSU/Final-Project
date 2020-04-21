@@ -51,8 +51,7 @@ CenTract2017 <-
 
 CenTract2017 <-
   CenTract2017 %>%
-  rename_all(paste0, "_2017") %>%
-  mutate(Year = "2017")
+  rename_all(paste0, "_2017")
 ```
 
 ```{r}
@@ -60,8 +59,7 @@ CenTract2017 <-
 CenTract2015 <-
   Census_Tract_2015 %>%
   rename_all(paste0, "_2015") %>%
-  rename(TractID_2015 = "CensusTract_2015", State = "State_2015", County = "County_2015") %>%
-  mutate(Year = "2015")
+  rename(TractID_2015 = "CensusTract_2015", State = "State_2015", County = "County_2015")
 ```
 
 ## Find unemployement rate change in each county in Pennsylvania
@@ -105,7 +103,7 @@ UnemploymentRateChange <-
 UnemploymentRateChange_gather <-
   UnemploymentRateChange %>%
   rename(`2015` = "UnemployedRate_2015", `2017` = "UnemployedRate_2017") %>%
-  gather(key = when, value = UnemployedRate, `2015`, `2017`)
+  gather(key = Year, value = UnemployedRate, `2015`, `2017`)
 ```
 
 ## Find income change in each county in Pennsylvania
@@ -148,7 +146,95 @@ names(PerCapIncome)[3] <- "2017"
 
 PerCapIncome_gather <-
   PerCapIncome %>%
-  gather(key = when, value = Per_Cap_Income, `2015`, `2017`)
+  gather(key = Year, value = Per_Cap_Income, `2015`, `2017`)
+```
+
+
+## Find poverty in each county
+
+1.
+```{r}
+TractPoverty <-
+  PennStateCensusTract %>%
+  select(County, TotalPop_2015, Poverty_2015, TotalPop_2017, Poverty_2017) %>%
+  mutate(Poverty_2015 = TotalPop_2015 * Poverty_2015 * 0.01, 
+         Poverty_2017 = TotalPop_2017 * Poverty_2017 * 0.01) %>%
+  mutate_at(vars(Poverty_2015, Poverty_2017), list(~ round(., 0))) %>%
+  na.omit()
+```
+
+2.
+```{r}
+CountyPoverty <-
+  TractPoverty %>%
+  group_by(County) %>%
+  summarise(TotPop_2015 = sum(TotalPop_2015), TotPoverty_2015 = sum(Poverty_2015), 
+            TotPop_2017 = sum(TotalPop_2017), TotPoverty_2017 = sum(Poverty_2017)) %>%
+  mutate(`2015`= TotPoverty_2015/TotPop_2015, 
+         `2017` = TotPoverty_2017/TotPop_2017) %>%
+  mutate_at(vars(`2015`, `2017`), list(~ round(., 4))) %>%
+  select(County, `2015`, `2017`)
+```
+
+3.
+```{r}
+CountyPoverty_gather <-
+  CountyPoverty %>%
+  gather(key = Year, value = Poverty, `2015`, `2017`)
+```
+
+
+##
+
+1.
+```{r}
+TractProfession <-
+  PennStateCensusTract %>%
+  select(County, TotalPop_2015, Professional_2015, Service_2015, Office_2015, Construction_2015,
+         Production_2015, TotalPop_2017, Professional_2017, Service_2017, Office_2017, 
+         Construction_2017, Production_2017) %>%
+  mutate(Professional_2015 = TotalPop_2015 * Professional_2015 * 0.01,
+         Service_2015 = TotalPop_2015 * Service_2015 * 0.01,
+         Office_2015 = TotalPop_2015 * Office_2015 * 0.01,
+         Construction_2015 = TotalPop_2015 * Construction_2015 * 0.01,
+         Production_2015 = TotalPop_2015 * Production_2015 * 0.01,
+         Professional_2017 = TotalPop_2017 * Professional_2017 * 0.01,
+         Service_2017 = TotalPop_2017 * Service_2017 * 0.01,
+         Office_2017 = TotalPop_2017 * Office_2017 * 0.01,
+         Construction_2017 = TotalPop_2017 * Construction_2017 * 0.01,
+         Production_2017 = TotalPop_2017 * Production_2017 * 0.01) %>%
+  mutate_at(vars(Professional_2015, Service_2015, Office_2015, Construction_2015,
+         Production_2015, Professional_2017, Service_2017, Office_2017, 
+         Construction_2017, Production_2017), list(~ round(., 0))) %>%
+  na.omit()
+```
+
+2.
+```{r}
+CountyProfession <-
+  TractProfession %>%
+  group_by(County) %>%
+  summarise(TotPop_2015 = sum(TotalPop_2015), TotProfessional_2015 = sum(Professional_2015),
+            TotService_2015 = sum(Service_2015), TotOffice_2015 = sum(Office_2015),
+            TotConstruction_2015 = sum(Construction_2015), TotProduction_2015 = sum(Production_2015),
+            TotPop_2017 = sum(TotalPop_2017), TotProfessional_2017 = sum(Professional_2017),
+            TotService_2017 = sum(Service_2017), TotOffice_2017 = sum(Office_2017),
+            TotConstruction_2017 = sum(Construction_2017), TotProduction_2017 = sum(Production_2017)) %>%
+  mutate(Professional_2015 = TotProfessional_2015/TotPop_2015,
+         Service_2015 = TotService_2015/TotPop_2015,
+         Office_2015 = TotOffice_2015/TotPop_2015,
+         Construction_2015 = TotConstruction_2015/TotPop_2015,
+         Production_2015 = TotProduction_2015/TotPop_2015,
+         Professional_2017 = TotProfessional_2017/TotPop_2017,
+         Service_2017 = TotService_2017/TotPop_2017,
+         Office_2017 = TotOffice_2017/TotPop_2017,
+         Construction_2017 = TotConstruction_2017/TotPop_2017,
+         Production_2017 = TotProduction_2017/TotPop_2017) %>%
+  select(County, Professional_2015, Service_2015, Office_2015, Construction_2015,
+         Production_2015, Professional_2017, Service_2017, Office_2017, 
+         Construction_2017, Production_2017)
+
+
 ```
 
 
