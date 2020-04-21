@@ -29,9 +29,6 @@ Census_Tract_2015 %>%
   head(5)
 
 ```
-```{r}
-Census_Tract_2015 <- acs2015_census_tract_data
-```
 
 ```{r}
 Census_Tract_2017 <-
@@ -39,9 +36,6 @@ Census_Tract_2017 <-
 
 Census_Tract_2017 %>%
   head(5)
-```
-```{r}
-Census_Tract_2017 <- acs2017_census_tract_data
 ```
 
 ## Formalize Data Frame
@@ -160,7 +154,7 @@ PerCapIncome_gather <-
 
 ```{r}
 Unemployed_vs_PerCapIncome <- 
-  UnemploymentRateChange_gather%>%
+  UnemploymentRateChange_gather %>%
   inner_join(PerCapIncome_gather)
 ```
 6.plot
@@ -207,6 +201,30 @@ CountyPoverty_gather <-
   gather(key = Year, value = Poverty, `2015`, `2017`)
 ```
 
+```{r}
+ ggplot( data = CountyPoverty_gather, aes(x = Poverty)) + 
+  geom_density(adjust = 0.5) + 
+  labs(title = "") 
+```
+
+
+4. Use join to combine per capita income and poverty rate in the same table.
+
+```{r}
+Poverty_vs_PerCapIncome <- 
+  CountyPoverty_gather %>%
+  inner_join(PerCapIncome_gather)
+```
+5.plot
+
+```{r}
+ggplot(data = Poverty_vs_PerCapIncome,aes(x = Poverty, y = Per_Cap_Income)) +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10() +
+  facet_wrap(~Year,ncol = 4)
+```
+
 
 ## Find each profession in each county
 
@@ -232,6 +250,8 @@ TractProfession <-
          Construction_2017, Production_2017), list(~ round(., 0))) %>%
   na.omit()
 ```
+
+
 
 2.
 ```{r}
