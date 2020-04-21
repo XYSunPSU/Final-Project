@@ -66,21 +66,58 @@ CenTract2015 <-
 ## Find unemployement rate change in each county in Pennsylvania
 
 1. Filter data where state is pennsylvania
-```{r}
+```{r} 
 PennStateCensusTract <-
   CenTract2015 %>%
   inner_join(CenTract2017, by = c("TractID_2015" = "TractId_2017")) %>%
   filter(State == "Pennsylvania")
 ```
 
-2. Calculate the exactly number of people who is unemployed
+2. Calculate the exactly number of people who is unemployed in each tract
 ```{r}
-UnemploymentRateChange <-
+TractUnemployedPeople <-
   PennStateCensusTract %>%
   select(County, TotalPop_2015, Unemployment_2015, TotalPop_2017, Unemployment_2017) %>%
   mutate(Unemployed2015 = TotalPop_2015 * Unemployment_2015 * 0.01, 
          Unemployed2017 = TotalPop_2017 * Unemployment_2017 * 0.01) %>%
-  mutate_at(vars(Unemployed2015, Unemployed2017), list(~ round(., 0)))
+  mutate_at(vars(Unemployed2015, Unemployed2017), list(~ round(., 0))) %>%
+  select(County, TotalPop_2015, Unemployed2015, TotalPop_2017, Unemployed2017) %>%
+  na.omit()
 ```
+
+3. Calculate the number of people who is unemployed in each county
+```{r}
+UnemploymentRateChange <-
+  TractUnemployedPeople %>%
+  group_by(County) %>%
+  summarise(TotPop_2015 = sum(TotalPop_2015), TotUnemployed_2015 = sum(Unemployed2015), 
+            TotPop_2017 = sum(TotalPop_2017), TotUnemployed_2017 = sum(Unemployed2017)) %>%
+  mutate(UnemployedRate_2015 = TotUnemployed_2015/TotPop_2015, 
+         UnemployedRate_2017 = TotUnemployed_2017/TotPop_2017) %>%
+  mutate_at(vars(UnemployedRate_2015, UnemployedRate_2017), list(~ round(., 4)))
+  
+```
+
+## Find income change in each county in Pennsylvania
+
+1. Find the total income in each tract 
+```{r}
+TractTotalIncome <- 
+  PennStateCensusTract %>%
+  select(County, TotalPop_2015, IncomePerCap_2015, TotalPop_2017, IncomePerCap_2017) %>%
+  mutate(TotalIncome_2015 = TotalPop_2015 * IncomePerCap_2015, 
+         TotalIncome_2017 = TotalPop_2017 * IncomePerCap_2017) %>%
+  na.omit()
+```
+
+2. Calculate the exactly income for each county
+```{r}
+CountyTotalIncome <-
+  TractTotalIncome %>%
+  group_by(County) %>%
+  summarise(TotIncome_2015 = sum(TotalIncome_2015),
+            TotIncome_2017 = sum(TotalIncome_2017))
+```
+
 
 
