@@ -184,7 +184,7 @@ CountyPoverty_gather <-
 ```
 
 
-##
+## Find each profession in each county
 
 1.
 ```{r}
