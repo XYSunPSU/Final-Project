@@ -107,6 +107,31 @@ UnemploymentRateChange_gather <-
   gather(key = Year, value = UnemployedRate, `2015`, `2017`)
 ```
 
+```{r}
+top_10_UnemploymentRate_county <-
+  UnemploymentRateChange%>%
+  arrange(desc(UnemployedRate_2015))%>%
+  head(10)
+
+ggplot(data =top_10_UnemploymentRate_county, aes(x = reorder(County,desc(UnemployedRate_2015)),y = UnemployedRate_2015)) + 
+  geom_bar(stat = 'identity', position = 'stack', width = 0.9,fill = 'lightgreen') +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1)) + 
+  ylab("UnemployedRate in 2015") +
+  xlab("Top 10 County")
+
+top_10_UnemploymentRate_county_2017 <-
+  UnemploymentRateChange%>%
+  arrange(desc(UnemployedRate_2017))%>%
+  head(10)
+
+ggplot(data =top_10_UnemploymentRate_county_2017, aes(x = reorder(County,desc(UnemployedRate_2017)),y = UnemployedRate_2017)) + 
+  geom_bar(stat = 'identity', position = 'stack', width = 0.9,fill = 'lightgreen') +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1)) + 
+  ylab("UnemployedRate in 2015") +
+  xlab("Top 10 County")
+```
+
+
 ## Find income change in each county in Pennsylvania
 
 1. Find the total income in each tract 
@@ -143,19 +168,29 @@ PerCapIncome <-
 
 
 ```{r}
-top_10_income_county_2015 <-
-  CountyTotalIncome%>%
-  arrange(desc(TotIncome_2015))%>%
+top_10_per_cap_income_county <-
+  PerCapIncome%>%
+  arrange(desc(Per_Cap_Income_2015))%>%
   head(10)
 
-ggplot(data = top_10_income_county_2015, aes(x = County,y = TotIncome_2015 )) + 
-  geom_bar(stat = 'identity', position = 'stack', width = 0.9)
-  
-ggplot(data = top_10_income_county_2015,aes(x = County, y = TotIncome_2015)) + 
-  geom_histogram(aes(x = reorder(County, desc(TotIncome_2015))), alpha = .5) + 
-  theme_bw() + 
+ggplot(data =top_10_per_cap_income_county, aes(x = reorder(County,desc(Per_Cap_Income_2015)),y = Per_Cap_Income_2015)) + 
+  geom_bar(stat = 'identity', position = 'stack', width = 0.9, fill = 'lightblue') +
   theme(axis.text.x = element_text(angle = 30, hjust = 1)) + 
-  xlab("Total income in 2015") 
+  ylab("Per capita income in 2015") +
+  xlab("Top 10 County")
+
+top_10_per_cap_income_county_2017 <-
+  PerCapIncome%>%
+  arrange(desc(Per_Cap_Income_2017))%>%
+  head(10)
+
+ggplot(data =top_10_per_cap_income_county_2017, aes(x = reorder(County,desc(Per_Cap_Income_2017)),y = Per_Cap_Income_2017)) + 
+  geom_bar(stat = 'identity', position = 'stack', width = 0.9, fill = 'lightblue') +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1)) + 
+  ylab("Per capita income in 2017") +
+  xlab("Top 10 County")
+
+
 ```
 
 4. Change the data frame to narrow form
@@ -243,69 +278,7 @@ ggplot(data = Poverty_vs_PerCapIncome,aes(x = Poverty, y = Per_Cap_Income)) +
 ```
 
 
-## Find the number of each Occupation in each county
 
-1.Let's divide the profession into five areas, they are Professional(people who employed in management, business, science, and arts), Service(people who employed in service jobs),  Office(people who employed in sales and office jobs) ,Construction(people who employed in natural resources, construction, and maintenance) and 
-Production(people who employed in production, transportation, and material movement). 
-
-```{r}
-TractOccupation <-
-  PennStateCensusTract %>%
-  select(County, TotalPop_2015, Professional_2015, Service_2015, Office_2015, Construction_2015,
-         Production_2015, TotalPop_2017, Professional_2017, Service_2017, Office_2017, 
-         Construction_2017, Production_2017) %>%
-  mutate(Professional_2015 = TotalPop_2015 * Professional_2015 * 0.01,
-         Service_2015 = TotalPop_2015 * Service_2015 * 0.01,
-         Office_2015 = TotalPop_2015 * Office_2015 * 0.01,
-         Construction_2015 = TotalPop_2015 * Construction_2015 * 0.01,
-         Production_2015 = TotalPop_2015 * Production_2015 * 0.01,
-         Professional_2017 = TotalPop_2017 * Professional_2017 * 0.01,
-         Service_2017 = TotalPop_2017 * Service_2017 * 0.01,
-         Office_2017 = TotalPop_2017 * Office_2017 * 0.01,
-         Construction_2017 = TotalPop_2017 * Construction_2017 * 0.01,
-         Production_2017 = TotalPop_2017 * Production_2017 * 0.01) %>%
-  mutate_at(vars(Professional_2015, Service_2015, Office_2015, Construction_2015,
-         Production_2015, Professional_2017, Service_2017, Office_2017, 
-         Construction_2017, Production_2017), list(~ round(., 0))) %>%
-  na.omit()
-```
-
-
-
-
-```{r}
-CountyOccupation <-
-  TractOccupation %>%
-  group_by(County) %>%
-  summarise(TotPop_2015 = sum(TotalPop_2015), TotProfessional_2015 = sum(Professional_2015),
-            TotService_2015 = sum(Service_2015), TotOffice_2015 = sum(Office_2015),
-            TotConstruction_2015 = sum(Construction_2015), TotProduction_2015 = sum(Production_2015),
-            TotPop_2017 = sum(TotalPop_2017), TotProfessional_2017 = sum(Professional_2017),
-            TotService_2017 = sum(Service_2017), TotOffice_2017 = sum(Office_2017),
-            TotConstruction_2017 = sum(Construction_2017), TotProduction_2017 = sum(Production_2017)) %>%
-  mutate(Professional_2015 = TotProfessional_2015/TotPop_2015,
-         Service_2015 = TotService_2015/TotPop_2015,
-         Office_2015 = TotOffice_2015/TotPop_2015,
-         Construction_2015 = TotConstruction_2015/TotPop_2015,
-         Production_2015 = TotProduction_2015/TotPop_2015,
-         Professional_2017 = TotProfessional_2017/TotPop_2017,
-         Service_2017 = TotService_2017/TotPop_2017,
-         Office_2017 = TotOffice_2017/TotPop_2017,
-         Construction_2017 = TotConstruction_2017/TotPop_2017,
-         Production_2017 = TotProduction_2017/TotPop_2017) %>%
-  select(County, Professional_2015, Service_2015, Office_2015, Construction_2015,
-         Production_2015, Professional_2017, Service_2017, Office_2017, 
-         Construction_2017, Production_2017)
-```
-
-
-```{r}
-
- ggplot( data = CountyPoverty_gather, aes(x = Poverty)) + 
-  geom_point() + 
-  facet_wrap(~Year,ncol = 4)
-
-```
 
 
 
