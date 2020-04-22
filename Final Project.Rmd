@@ -140,6 +140,24 @@ PerCapIncome <-
   select(County, Per_Cap_Income_2015, Per_Cap_Income_2017) 
 ```
 
+
+
+```{r}
+top_10_income_county_2015 <-
+  CountyTotalIncome%>%
+  arrange(desc(TotIncome_2015))%>%
+  head(10)
+
+ggplot(data = top_10_income_county_2015, aes(x = County,y = TotIncome_2015 )) + 
+  geom_bar(stat = 'identity', position = 'stack', width = 0.9)
+  
+ggplot(data = top_10_income_county_2015,aes(x = County, y = TotIncome_2015)) + 
+  geom_histogram(aes(x = reorder(County, desc(TotIncome_2015))), alpha = .5) + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 30, hjust = 1)) + 
+  xlab("Total income in 2015") 
+```
+
 4. Change the data frame to narrow form
 ```{r}
 names(PerCapIncome)[2] <- "2015"
@@ -202,10 +220,8 @@ CountyPoverty_gather <-
 ```
 
 ```{r}
- ggplot( data = CountyPoverty_gather, aes(x = Poverty)) + 
-  geom_density(adjust = 0.5) + 
-  labs(title = "") +
-  facet_wrap(~Year,ncol = 4)
+ ggplot( data = CountyPoverty_gather, aes(x = Poverty, color = Year)) + 
+  geom_density(aes(fill = Year), alpha = 0.5)
 ```
 
 
