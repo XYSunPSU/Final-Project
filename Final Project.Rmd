@@ -204,7 +204,8 @@ CountyPoverty_gather <-
 ```{r}
  ggplot( data = CountyPoverty_gather, aes(x = Poverty)) + 
   geom_density(adjust = 0.5) + 
-  labs(title = "") 
+  labs(title = "") +
+  facet_wrap(~Year,ncol = 4)
 ```
 
 
@@ -226,11 +227,13 @@ ggplot(data = Poverty_vs_PerCapIncome,aes(x = Poverty, y = Per_Cap_Income)) +
 ```
 
 
-## Find each profession in each county
+## Find the number of each Occupation in each county
 
-1.
+1.Let's divide the profession into five areas, they are Professional(people who employed in management, business, science, and arts), Service(people who employed in service jobs),  Office(people who employed in sales and office jobs) ,Construction(people who employed in natural resources, construction, and maintenance) and 
+Production(people who employed in production, transportation, and material movement). 
+
 ```{r}
-TractProfession <-
+TractOccupation <-
   PennStateCensusTract %>%
   select(County, TotalPop_2015, Professional_2015, Service_2015, Office_2015, Construction_2015,
          Production_2015, TotalPop_2017, Professional_2017, Service_2017, Office_2017, 
@@ -253,10 +256,10 @@ TractProfession <-
 
 
 
-2.
+
 ```{r}
-CountyProfession <-
-  TractProfession %>%
+CountyOccupation <-
+  TractOccupation %>%
   group_by(County) %>%
   summarise(TotPop_2015 = sum(TotalPop_2015), TotProfessional_2015 = sum(Professional_2015),
             TotService_2015 = sum(Service_2015), TotOffice_2015 = sum(Office_2015),
@@ -277,8 +280,16 @@ CountyProfession <-
   select(County, Professional_2015, Service_2015, Office_2015, Construction_2015,
          Production_2015, Professional_2017, Service_2017, Office_2017, 
          Construction_2017, Production_2017)
+```
 
+
+```{r}
+
+ ggplot( data = CountyPoverty_gather, aes(x = Poverty)) + 
+  geom_point() + 
+  facet_wrap(~Year,ncol = 4)
 
 ```
+
 
 
