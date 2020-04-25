@@ -18,6 +18,14 @@ library(tidyr)
 library(leaflet)
 ```
 
+## Reasearch question
+
+What factors affect per capita income? Is per capita income related to unemployment rate? Is per capita income related to poverty rate?
+
+## why important/interesting
+
+Because I think that per capita income can better reflect the economic situation of a region than total income. So I am curious about what factors have relationship with per capita income.
+
 
 ## Data Intake
 
@@ -62,6 +70,9 @@ CenTract2017 <-
 CenTract2017 <-
   CenTract2017 %>%
   rename_all(paste0, "_2017")
+
+CenTract2017 %>%
+  head(5)
 ```
 
 ```{r}
@@ -70,16 +81,23 @@ CenTract2015 <-
   Census_Tract_2015 %>%
   rename_all(paste0, "_2015") %>%
   rename(TractID_2015 = "CensusTract_2015", State = "State_2015", County = "County_2015")
+
+CenTract2015 %>%
+  head(5)
 ```
 
 ```{r}
 #remove dot from columns name
 names(County_Lat_Lon) <- gsub("\\.", "_", names(County_Lat_Lon))
+
+County_Lat_Lon %>%
+  head(5)
 ```
 
 
+## Find income change in each county in Pennsylvania
 
-## Find unemployement rate change in each county in Pennsylvania
+Because the dat we use is collected based on street, so we need to convert it to county-based.
 
 1. Filter data where state is pennsylvania
 ```{r} 
@@ -89,68 +107,7 @@ PennStateCensusTract <-
   filter(State == "Pennsylvania")
 ```
 
-2. Calculate the exactly number of people who is unemployed in each tract
-```{r}
-TractUnemployedPeople <-
-  PennStateCensusTract %>%
-  select(County, TotalPop_2015, Unemployment_2015, TotalPop_2017, Unemployment_2017) %>%
-  mutate(Unemployed2015 = TotalPop_2015 * Unemployment_2015 * 0.01, 
-         Unemployed2017 = TotalPop_2017 * Unemployment_2017 * 0.01) %>%
-  mutate_at(vars(Unemployed2015, Unemployed2017), list(~ round(., 0))) %>%
-  select(County, TotalPop_2015, Unemployed2015, TotalPop_2017, Unemployed2017) %>%
-  na.omit()
-```
-
-3. Calculate the number of people who is unemployed in each county
-```{r}
-UnemploymentRateChange <-
-  TractUnemployedPeople %>%
-  group_by(County) %>%
-  summarise(TotPop_2015 = sum(TotalPop_2015), TotUnemployed_2015 = sum(Unemployed2015), 
-            TotPop_2017 = sum(TotalPop_2017), TotUnemployed_2017 = sum(Unemployed2017)) %>%
-  mutate(UnemployedRate_2015 = TotUnemployed_2015/TotPop_2015, 
-         UnemployedRate_2017 = TotUnemployed_2017/TotPop_2017) %>%
-  mutate_at(vars(UnemployedRate_2015, UnemployedRate_2017), list(~ round(., 4))) %>%
-  select(County, UnemployedRate_2015, UnemployedRate_2017)
-  
-```
-
-4. Change data frame to narrwo form
-```{r}
-UnemploymentRateChange_gather <-
-  UnemploymentRateChange %>%
-  rename(`2015` = "UnemployedRate_2015", `2017` = "UnemployedRate_2017") %>%
-  gather(key = Year, value = UnemployedRate, `2015`, `2017`)
-```
-
-```{r}
-top_10_UnemploymentRate_county <-
-  UnemploymentRateChange%>%
-  arrange(desc(UnemployedRate_2015))%>%
-  head(10)
-
-ggplot(data =top_10_UnemploymentRate_county, aes(x = reorder(County,desc(UnemployedRate_2015)),y = UnemployedRate_2015)) + 
-  geom_bar(stat = 'identity', position = 'stack', width = 0.9,fill = 'lightgreen') +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1)) + 
-  ylab("UnemployedRate in 2015") +
-  xlab("Top 10 County")
-
-top_10_UnemploymentRate_county_2017 <-
-  UnemploymentRateChange%>%
-  arrange(desc(UnemployedRate_2017))%>%
-  head(10)
-
-ggplot(data =top_10_UnemploymentRate_county_2017, aes(x = reorder(County,desc(UnemployedRate_2017)),y = UnemployedRate_2017)) + 
-  geom_bar(stat = 'identity', position = 'stack', width = 0.9,fill = 'lightgreen') +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1)) + 
-  ylab("UnemployedRate in 2015") +
-  xlab("Top 10 County")
-```
-
-
-## Find income change in each county in Pennsylvania
-
-1. Find the total income in each tract 
+2. Find the total income in each tract 
 ```{r}
 TractTotalIncome <- 
   PennStateCensusTract %>%
@@ -160,7 +117,7 @@ TractTotalIncome <-
   na.omit()
 ```
 
-2. Calculate the exactly income for each county
+3. Calculate the exactly income for each county
 ```{r}
 CountyTotalIncome <-
   TractTotalIncome %>%
@@ -171,7 +128,7 @@ CountyTotalIncome <-
             TotalPop_2017 = sum(TotalPop_2017))
 ```
 
-3. Find the Per Cap Income for each county
+4. Find the Per Cap Income for each county
 ```{r}
 PerCapIncome <-
   CountyTotalIncome %>%
@@ -179,10 +136,13 @@ PerCapIncome <-
   mutate(Per_Cap_Income_2015 = TotIncome_2015 / TotalPop_2015,
          Per_Cap_Income_2017 = TotIncome_2017 / TotalPop_2017) %>%
   select(County, Per_Cap_Income_2015, Per_Cap_Income_2017) 
+
+PerCapIncome %>%
+  head(5)
 ```
 
 
-
+5. Display the top 10 county with the highest unemployment rates in 2015 and 2017
 ```{r}
 top_10_per_cap_income_county <-
   PerCapIncome%>%
@@ -209,7 +169,81 @@ ggplot(data =top_10_per_cap_income_county_2017, aes(x = reorder(County,desc(Per_
 
 ```
 
+From the two graph above, we could see that from 2015 to 2017, the overall per capita income has risen.Chester's per capita income has risen from over 40,000 to more than 45,000. So, what factors might influence the per capita income?
+Let ’s first try tp find out if there is a relationship between the unemployment rate and per capita income.
+
+
+## Find unemployement rate change in each county in Pennsylvania
+
+
+1. Calculate the exactly number of people who is unemployed in each tract
+```{r}
+TractUnemployedPeople <-
+  PennStateCensusTract %>%
+  select(County, TotalPop_2015, Unemployment_2015, TotalPop_2017, Unemployment_2017) %>%
+  mutate(Unemployed2015 = TotalPop_2015 * Unemployment_2015 * 0.01, 
+         Unemployed2017 = TotalPop_2017 * Unemployment_2017 * 0.01) %>%
+  mutate_at(vars(Unemployed2015, Unemployed2017), list(~ round(., 0))) %>%
+  select(County, TotalPop_2015, Unemployed2015, TotalPop_2017, Unemployed2017) %>%
+  na.omit()
+```
+
+2. Calculate the number of people who is unemployed in each county
+```{r}
+UnemploymentRateChange <-
+  TractUnemployedPeople %>%
+  group_by(County) %>%
+  summarise(TotPop_2015 = sum(TotalPop_2015), TotUnemployed_2015 = sum(Unemployed2015), 
+            TotPop_2017 = sum(TotalPop_2017), TotUnemployed_2017 = sum(Unemployed2017)) %>%
+  mutate(UnemployedRate_2015 = TotUnemployed_2015/TotPop_2015, 
+         UnemployedRate_2017 = TotUnemployed_2017/TotPop_2017) %>%
+  mutate_at(vars(UnemployedRate_2015, UnemployedRate_2017), list(~ round(., 4))) %>%
+  select(County, UnemployedRate_2015, UnemployedRate_2017)
+ 
+UnemploymentRateChange %>%
+  head(5)
+```
+
+3.Display the top 10 county with the highest unemployment rates in 2015 and 2017
+```{r}
+top_10_UnemploymentRate_county <-
+  UnemploymentRateChange%>%
+  arrange(desc(UnemployedRate_2015))%>%
+  head(10)
+
+ggplot(data =top_10_UnemploymentRate_county, aes(x = reorder(County,desc(UnemployedRate_2015)),y = UnemployedRate_2015)) + 
+  geom_bar(stat = 'identity', position = 'stack', width = 0.9,fill = 'lightgreen') +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1)) + 
+  ylab("UnemployedRate in 2015") +
+  xlab("Top 10 County")
+
+top_10_UnemploymentRate_county_2017 <-
+  UnemploymentRateChange%>%
+  arrange(desc(UnemployedRate_2017))%>%
+  head(10)
+
+ggplot(data =top_10_UnemploymentRate_county_2017, aes(x = reorder(County,desc(UnemployedRate_2017)),y = UnemployedRate_2017)) + 
+  geom_bar(stat = 'identity', position = 'stack', width = 0.9,fill = 'lightgreen') +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1)) + 
+  ylab("UnemployedRate in 2015") +
+  xlab("Top 10 County")
+```
+
+From the two graph above, we could see that from 2015 to 2017, the overall unemployment rate has dropped. Philadelphia's unemployment rate dropped from 15% to 12.5%, and the unemployment rate in other counties also declined.
+
+
+
 4. Change the data frame to narrow form
+```{r}
+UnemploymentRateChange_gather <-
+  UnemploymentRateChange %>%
+  rename(`2015` = "UnemployedRate_2015", `2017` = "UnemployedRate_2017") %>%
+  gather(key = Year, value = UnemployedRate, `2015`, `2017`)
+
+UnemploymentRateChange_gather %>%
+  head(5)
+```
+
 ```{r}
 names(PerCapIncome)[2] <- "2015"
 names(PerCapIncome)[3] <- "2017"
@@ -217,7 +251,13 @@ names(PerCapIncome)[3] <- "2017"
 PerCapIncome_gather <-
   PerCapIncome %>%
   gather(key = Year, value = Per_Cap_Income, `2015`, `2017`)
+
+PerCapIncome_gather %>%
+  head(5)
 ```
+
+
+
 
 5. Use join to combine per capita income and unemployed rate in the same table.
 
@@ -225,8 +265,14 @@ PerCapIncome_gather <-
 Unemployed_vs_PerCapIncome <- 
   UnemploymentRateChange_gather %>%
   inner_join(PerCapIncome_gather)
+
+Unemployed_vs_PerCapIncome %>%
+  head(5)
 ```
-6.plot
+
+
+
+6.graph the scatter plot and try to find relation ship between Per capita income and unemployed rate.
 
 ```{r}
 ggplot(data = Unemployed_vs_PerCapIncome,aes(x = UnemployedRate, y = Per_Cap_Income)) +
@@ -235,11 +281,11 @@ ggplot(data = Unemployed_vs_PerCapIncome,aes(x = UnemployedRate, y = Per_Cap_Inc
   scale_y_log10() +
   facet_wrap(~Year,ncol = 4)
 ```
-
+The scatter plot of per capita income and unemployment rate does not create an ideal graph, and the distribution of scatter plots does not seem to be regular. So I think there is no strong connection between per capita income and unemployment rate.
 
 ## Find poverty in each county
 
-1.
+1.Calculate the exactly number of people who is considered poverty in each tract
 ```{r}
 TractPoverty <-
   PennStateCensusTract %>%
@@ -250,7 +296,7 @@ TractPoverty <-
   na.omit()
 ```
 
-2.
+2.Calculate the number of people who is considered poverty in each county
 ```{r}
 CountyPoverty <-
   TractPoverty %>%
@@ -261,20 +307,58 @@ CountyPoverty <-
          `2017` = TotPoverty_2017/TotPop_2017) %>%
   mutate_at(vars(`2015`, `2017`), list(~ round(., 4))) %>%
   select(County, `2015`, `2017`)
+
+CountyPoverty %>%
+  head(5)
 ```
 
-3.
+3.Change the poverty rate data frame to narrow form
 ```{r}
 CountyPoverty_gather <-
   CountyPoverty %>%
   gather(key = Year, value = Poverty, `2015`, `2017`)
+
+CountyPoverty_gather %>%
+  head(5)
 ```
 
+4. graph the poverty distribution plot
 ```{r}
  ggplot( data = CountyPoverty_gather, aes(x = Poverty, color = Year)) + 
   geom_density(aes(fill = Year), alpha = 0.5)
 ```
+Compared with 2015, the overall distribution of poverty rate in 2017 shifted to the left. So I think the poverty rate in Pennsylvania has dropped
 
+5. Join two table to combine the each county's poverty rate and its postion.
+```{r}
+PerCapIcome_Map <-
+  County_Lat_Lon %>%
+  inner_join(CountyPoverty_gather,by = c("County_Name" = "County")) %>%
+  filter(Year == 2017) %>%
+  select(County_Name, Longitude, Latitude, Year, Poverty)
+
+PerCapIcome_Map %>%
+  head(5)
+```
+
+6.Because the circle of poverty rate shown on the map is too small, we multiply the poverty rate by 100 to increase his radius
+```{r}
+for (i in 1:67){
+  PerCapIcome_Map$CountyPov[i] <-(PerCapIcome_Map$Poverty[i] * 100)
+}
+```
+
+```{r}
+PerCapIncomeMap <-
+  leaflet(PerCapIcome_Map) %>%   # like ggplot()
+  addTiles() %>%          # add the map
+  setView(-77.9, 41.20, zoom = 7) %>%
+  addCircleMarkers(radius = ~ (CountyPov), color="red", popup = ~ paste("$", Poverty))
+  
+
+PerCapIncomeMap
+```
+From the map, we find that the poverty rate in each county is different, and the difference in poverty rate between county and county is still large. Next we need to find out if there is a relationship between the poverty rate and per capita income
 
 4. Use join to combine per capita income and poverty rate in the same table.
 
@@ -282,8 +366,11 @@ CountyPoverty_gather <-
 Poverty_vs_PerCapIncome <- 
   CountyPoverty_gather %>%
   inner_join(PerCapIncome_gather)
+
+Poverty_vs_PerCapIncome %>%
+  head(5)
 ```
-5.plot
+5.graph the scatter plot and try to find relation ship between Per capita income and poverty rate.
 
 ```{r}
 ggplot(data = Poverty_vs_PerCapIncome,aes(x = Poverty, y = Per_Cap_Income)) +
@@ -292,36 +379,19 @@ ggplot(data = Poverty_vs_PerCapIncome,aes(x = Poverty, y = Per_Cap_Income)) +
   scale_y_log10() +
   facet_wrap(~Year,ncol = 4)
 ```
+The scatter plot of per capita income and unemployment rate create an ideal graph, So I think there is a relationship between per capita income and unemployment rate.
 
-```{r}
-PerCapIcome_Map <-
-  County_Lat_Lon %>%
-  inner_join(PerCapIncome_gather,by = c("County_Name" = "County")) %>%
-  filter(Year == 2017) %>%
-  select(County_Name, Longitude, Latitude, Year, Per_Cap_Income)
-  
-```
+Conclusion:
+There is no strong connection between per capita income and unemployment rate. However, Income per capita and Poverty has negative correlation. Which means, as the poverty increase the per capita income decrease. 
 
-
-reduce the Per_Cap_Income by divided by 1000
-```{r}
-for (i in 1:67){
-  PerCapIcome_Map$PCI[i] <-(PerCapIcome_Map$Per_Cap_Income[i] / 1000)
-}
-```
+challenge: 
+At the beginning, we directly use the per capita income in each tract and find a mean of per capita income of a county. Soon we found out that this data is wrong (strange). We first multiply the number of people in each tract and the per capita income. After we get the total income of each tract, we use summarise() to get the total income of each county. And finally, we divided the total income of each county by the total number of people to get the real income per capita of each county.
 
 
 
-```{r}
-PerCapIncomeMap <-
-  leaflet(PerCapIcome_Map) %>%   # like ggplot()
-  addTiles() %>%          # add the map
-  setView(-77.9, 41.20, zoom = 7) %>%
-  addCircleMarkers(radius = ~ (PCI), color="red", popup = ~ paste("$", Per_Cap_Income))
-  
 
-PerCapIncomeMap
-```
+
+
 
 
 
