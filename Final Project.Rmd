@@ -353,7 +353,7 @@ PerCapIncomeMap <-
   leaflet(PerCapIcome_Map) %>%   # like ggplot()
   addTiles() %>%          # add the map
   setView(-77.9, 41.20, zoom = 7) %>%
-  addCircleMarkers(radius = ~ (CountyPov), color="red", popup = ~ paste("$", Poverty))
+  addCircleMarkers(radius = ~ (CountyPov), color="red", popup = ~ paste(Poverty))
   
 
 PerCapIncomeMap
