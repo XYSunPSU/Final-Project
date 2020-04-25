@@ -360,7 +360,7 @@ PerCapIncomeMap
 ```
 From the map, we find that the poverty rate in each county is different, and the difference in poverty rate between county and county is still large. Next we need to find out if there is a relationship between the poverty rate and per capita income
 
-4. Use join to combine per capita income and poverty rate in the same table.
+## Find relationship between Poverty and Per Cap Income
 
 ```{r}
 Poverty_vs_PerCapIncome <- 
@@ -370,7 +370,8 @@ Poverty_vs_PerCapIncome <-
 Poverty_vs_PerCapIncome %>%
   head(5)
 ```
-5.graph the scatter plot and try to find relation ship between Per capita income and poverty rate.
+
+1. graph the scatter plot and try to find relation ship between Per capita income and poverty rate.
 
 ```{r}
 ggplot(data = Poverty_vs_PerCapIncome,aes(x = Poverty, y = Per_Cap_Income)) +
