@@ -1,6 +1,6 @@
 ---
 title: 'Final Project: Guidance Document'
-author: "Author Name(s)"
+author: "JingDU&Xunyuan Sun"
 date: "Due December 17, 2019"
 output:  html_notebook
 ---
@@ -32,22 +32,22 @@ line 32-42
 line 42-47
 
 (B) .Rmd Line number(s) for a join operation: 
-
+line 103-107, line 264-268, line 365-368
 
 (C) .Rmd Line number(s) for a spread or gather operation (or equivalent):
-
+line238-241, line 251-253,line 316-319
 
 (D) .Rmd Line number(s) for use of regular expressions: 
 
 
 (E) .Rmd Line number(s) for use of reduction and/or transformation functions: 
-
+line 107, 114, 115, 124, 141,
 
 (F) .Rmd Line number(s) for use of user-defined functions: 
 
 
 (G) .Rmd Line number(s) for use of loops and/or control flow: 
-
+line345-349
 
 (H) .Rmd Line number(s) for use of machine learning (not "wrangling" but scored here): 
 
@@ -59,13 +59,14 @@ line 42-47
 
 
 (A) .Rmd Line number(s) for use of mulitple different geoms:  
+line153, line279, line327
 
 (B) .Rmd Line number(s) for use of multiple aesthetics:  
-
+line152, line225 line 328
 (C) .Rmd Line number(s) for use of layered graphics:  
 
 (D) .Rmd Line number(s) for use of leaflet maps:  
-
+line 352-356
 (E) .Rmd Line number(s) for use of decision tree or dendogram results:    
 
 
